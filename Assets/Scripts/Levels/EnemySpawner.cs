@@ -84,6 +84,6 @@ public class EnemySpawner : MonoBehaviour
         en.hp = new Hittable(50, Hittable.Team.MONSTERS, new_enemy);
         en.speed = 10;
         GameManager.Instance.AddEnemy(new_enemy);
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.5f);
     }
 }

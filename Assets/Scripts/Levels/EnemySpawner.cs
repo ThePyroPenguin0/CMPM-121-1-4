@@ -17,10 +17,20 @@ public class EnemySpawner : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        GameObject selector = Instantiate(button, level_selector.transform);
-        selector.transform.localPosition = new Vector3(0, 130);
-        selector.GetComponent<MenuSelectorController>().spawner = this;
-        selector.GetComponent<MenuSelectorController>().SetLevel("Start");
+        GameObject rookieSelector = Instantiate(button, level_selector.transform);
+        rookieSelector.transform.localPosition = new Vector3(0, 130);
+        rookieSelector.GetComponent<MenuSelectorController>().spawner = this;
+        rookieSelector.GetComponent<MenuSelectorController>().SetLevel("Rookie Level");
+
+        GameObject mediumSelector = Instantiate(button, level_selector.transform);
+        mediumSelector.transform.localPosition = new Vector3(0, 30);
+        mediumSelector.GetComponent<MenuSelectorController>().spawner = this;
+        mediumSelector.GetComponent<MenuSelectorController>().SetLevel("Medium Level");
+
+        GameObject advSelector = Instantiate(button, level_selector.transform);
+        advSelector.transform.localPosition = new Vector3(0, -70);
+        advSelector.GetComponent<MenuSelectorController>().spawner = this;
+        advSelector.GetComponent<MenuSelectorController>().SetLevel("Advanced Level");
     }
 
     // Update is called once per frame

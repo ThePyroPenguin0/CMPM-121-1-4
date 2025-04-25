@@ -33,6 +33,19 @@ public class EnemySpawner : MonoBehaviour
         advSelector.GetComponent<MenuSelectorController>().SetLevel("Advanced Level");
     }
 
+    // Added code - Jocelyn 
+    void CreateLevel(string theLevel, Vector3 position){
+        GameObject selector = Instantiate(button, level_selector.transform);
+        selector.transform.localPosition = position;
+
+        MenuSelectorController theMenu = selector.GetComponent<MenuSelectorController>();
+        theMenu.spawner = this;
+        theMenu.SetLevel(theLevel);
+
+        Button theButton = selector.GetComponent<Button>();
+        theButton.onClick.AddListener(() => theMenu.StartLevel());
+    }
+
     // Update is called once per frame
     void Update()
     {

@@ -21,16 +21,19 @@ public class EnemySpawner : MonoBehaviour
         rookieSelector.transform.localPosition = new Vector3(0, 130);
         rookieSelector.GetComponent<MenuSelectorController>().spawner = this;
         rookieSelector.GetComponent<MenuSelectorController>().SetLevel("Rookie Level");
+        rookieSelector.GetComponent<MenuSelectorController>().level = "Easy";
 
         GameObject mediumSelector = Instantiate(button, level_selector.transform);
         mediumSelector.transform.localPosition = new Vector3(0, 30);
         mediumSelector.GetComponent<MenuSelectorController>().spawner = this;
         mediumSelector.GetComponent<MenuSelectorController>().SetLevel("Medium Level");
+        mediumSelector.GetComponent<MenuSelectorController>().level = "Medium";
 
         GameObject advSelector = Instantiate(button, level_selector.transform);
         advSelector.transform.localPosition = new Vector3(0, -70);
         advSelector.GetComponent<MenuSelectorController>().spawner = this;
         advSelector.GetComponent<MenuSelectorController>().SetLevel("Advanced Level");
+        advSelector.GetComponent<MenuSelectorController>().level = "Endless";
     }
 
     // Added code - Jocelyn 

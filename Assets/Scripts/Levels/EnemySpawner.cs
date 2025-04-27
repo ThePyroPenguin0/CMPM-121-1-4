@@ -88,16 +88,33 @@ public class EnemySpawner : MonoBehaviour
         GameManager.Instance.countdown = 3;
         for (int i = 3; i > 0; i--)
         {
-            yield return new WaitForSeconds(1.01f);
-            GameManager.Instance.countdown--;
+            GameManager.Instance.countdown = i;
+            yield return new WaitForSeconds(1.0f);
         }
         GameManager.Instance.state = GameManager.GameState.INWAVE;
 
         foreach (var spawn in currentLevel.spawns)
         {
-            foreach (int group in spawn.sequence)
+            Debug.Log($"Spawning {spawn.enemy} with hp {spawn.hp}");
+
+            // Check if the sequence field exists and is not null
+            if (spawn.sequence != null && spawn.sequence.Count > 0)
             {
-                for (int i = 0; i < group; i++)
+                foreach (int group in spawn.sequence)
+                {
+                    Debug.Log($"Spawning {spawn.enemy}, in a group of {group}");
+                    for (int i = 0; i < group; i++)
+                    {
+                        StartCoroutine(SpawnZombie(spawn.enemy));
+                    }
+                    yield return new WaitForSeconds(spawn.delay);
+                }
+            }
+            else
+            {
+                // If sequence is missing or empty, spawn one enemy
+                Debug.Log($"Spawning {spawn.enemy}, no sequence defined. Defaulting to count spawns.");
+                for (int i = 0; i < RPN.EvaluateRPN(spawn.count, new Dictionary<string, int>() { ["wave"] = currentWave }); i++)
                 {
                     StartCoroutine(SpawnZombie(spawn.enemy));
                 }

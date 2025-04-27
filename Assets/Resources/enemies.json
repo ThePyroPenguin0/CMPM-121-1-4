@@ -24,7 +24,7 @@
         "name": "cloaker",
         "sprite": 66,
         "hp": 1,
-        "speed": 70,
+        "speed": 30,
         "damage": 100
     }
 ]

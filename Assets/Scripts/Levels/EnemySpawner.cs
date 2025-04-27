@@ -22,7 +22,24 @@ public class EnemySpawner : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        GameObject selector = Instantiate(button, level_selector.transform);
+        GameObject rookieSelector = Instantiate(button, level_selector.transform);
+        rookieSelector.transform.localPosition = new Vector3(0, 130);
+        rookieSelector.GetComponent<MenuSelectorController>().spawner = this;
+        rookieSelector.GetComponent<MenuSelectorController>().SetLevel("Rookie Level");
+        rookieSelector.GetComponent<MenuSelectorController>().level = "Easy";
+
+        GameObject mediumSelector = Instantiate(button, level_selector.transform);
+        mediumSelector.transform.localPosition = new Vector3(0, 30);
+        mediumSelector.GetComponent<MenuSelectorController>().spawner = this;
+        mediumSelector.GetComponent<MenuSelectorController>().SetLevel("Medium Level");
+        mediumSelector.GetComponent<MenuSelectorController>().level = "Medium";
+
+        GameObject advSelector = Instantiate(button, level_selector.transform);
+        advSelector.transform.localPosition = new Vector3(0, -70);
+        advSelector.GetComponent<MenuSelectorController>().spawner = this;
+        advSelector.GetComponent<MenuSelectorController>().SetLevel("Advanced Level");
+        advSelector.GetComponent<MenuSelectorController>().level = "Endless";
+        
         selector.transform.localPosition = new Vector3(0, 130);
         selector.GetComponent<MenuSelectorController>().spawner = this;
         selector.GetComponent<MenuSelectorController>().SetLevel("Start");
@@ -44,6 +61,20 @@ public class EnemySpawner : MonoBehaviour
             Level le = level.ToObject<Level>();
             level_types[le.name] = le;
         }
+    }
+
+    // Added code - Jocelyn 
+    void CreateLevel(string theLevel, Vector3 position)
+    {
+        GameObject selector = Instantiate(button, level_selector.transform);
+        selector.transform.localPosition = position;
+
+        MenuSelectorController theMenu = selector.GetComponent<MenuSelectorController>();
+        theMenu.spawner = this;
+        theMenu.SetLevel(theLevel);
+
+        Button theButton = selector.GetComponent<Button>();
+        theButton.onClick.AddListener(() => theMenu.StartLevel());
     }
 
     // Update is called once per frame

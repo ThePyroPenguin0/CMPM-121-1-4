@@ -22,6 +22,7 @@ public class EnemySpawner : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        /*
         GameObject rookieSelector = Instantiate(button, level_selector.transform);
         rookieSelector.transform.localPosition = new Vector3(0, 130);
         rookieSelector.GetComponent<MenuSelectorController>().spawner = this;
@@ -43,6 +44,11 @@ public class EnemySpawner : MonoBehaviour
         selector.transform.localPosition = new Vector3(0, 130);
         selector.GetComponent<MenuSelectorController>().spawner = this;
         selector.GetComponent<MenuSelectorController>().SetLevel("Start");
+        */
+
+        CreateLevel("Rookie Level", new Vector3(0, 130));
+        CreateLevel("Medium Level", new Vector3(0, 30));
+        CreateLevel("Advanced Level", new Vector3(0, -70));
 
         var enemytext = Resources.Load<TextAsset>("enemies");
 

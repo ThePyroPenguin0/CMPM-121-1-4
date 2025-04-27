@@ -122,6 +122,16 @@ public class EnemySpawner : MonoBehaviour
             }
         }
         yield return new WaitWhile(() => GameManager.Instance.enemy_count > 0);
+        /*
+        if(PlayerController.Instance.player.GetComponent<PlayerController>().hp != 0){
+            GameManager.Instance.state = GameManager.GameState.WAVEEND;
+        }
+        
+        if(GameManager.Instance.player.GetComponent<PlayerController>().hp.hp != 0){
+            GameManager.Instance.state = GameManager.GameState.WAVEEND;
+        }
+        */
+
         GameManager.Instance.state = GameManager.GameState.WAVEEND;
         currentWave++;
     }

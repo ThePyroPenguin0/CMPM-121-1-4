@@ -15,6 +15,8 @@ public class GameManager
     }
     public GameState state;
 
+    //public List<GameObject> enemies = new List<GameObject>(); 
+
     public int countdown;
     private static GameManager theInstance;
     public static GameManager Instance {  get
@@ -55,5 +57,17 @@ public class GameManager
     private GameManager()
     {
         enemies = new List<GameObject>();
+        //state = GameState.PREGAME;
+    }
+
+    public void ClearAllEnemies(){
+        foreach(var enemy in enemies){
+            if(enemy != null){
+                UnityEngine.Object.Destroy(enemy);
+            }
+        }
+
+        enemies.Clear();
+        Debug.Log("All enemies are out of this game."); 
     }
 }

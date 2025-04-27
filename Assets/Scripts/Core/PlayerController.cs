@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.IO;
+using System.Collections;
 using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour
@@ -14,6 +15,10 @@ public class PlayerController : MonoBehaviour
     public SpellCaster spellcaster;
     public SpellUI spellui;
 
+    public GameObject gameOverUI;
+
+    public EnemySpawner theSpawner;
+
     public int speed;
 
     public Unit unit;
@@ -23,6 +28,7 @@ public class PlayerController : MonoBehaviour
     {
         unit = GetComponent<Unit>();
         GameManager.Instance.player = gameObject;
+        theSpawner = FindObjectOfType<EnemySpawner>();
     }
 
     public void StartLevel()
@@ -63,7 +69,29 @@ public class PlayerController : MonoBehaviour
 
     void Die()
     {
-        Debug.Log("You Lost");
+        Debug.Log("You Lost: " + GameManager.Instance.state);
+        if(GameManager.Instance.state == GameManager.GameState.INWAVE){
+            GameManager.Instance.ClearAllEnemies();
+            StartCoroutine(ShowGameOverScreen());
+        }
+        GameManager.Instance.state = GameManager.GameState.PREGAME;
     }
 
+    IEnumerator ShowGameOverScreen(){
+        gameOverUI.SetActive(true);
+        yield return new WaitForSeconds(15f); 
+        //gameOverUI.SetActive(false);
+    }
+
+    public void ReturnToStartMenu(){
+        GameManager.Instance.state = GameManager.GameState.PREGAME;
+
+        gameOverUI.SetActive(false);
+
+        if(theSpawner != null){
+            theSpawner.level_selector.gameObject.SetActive(true);
+        } 
+
+        GameManager.Instance.ClearAllEnemies(); 
+    }
 }

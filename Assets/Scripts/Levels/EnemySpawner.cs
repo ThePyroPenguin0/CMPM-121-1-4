@@ -89,13 +89,14 @@ public class EnemySpawner : MonoBehaviour
         GameManager.Instance.countdown = 3;
         for (int i = 3; i > 0; i--)
         {
-            GameManager.Instance.countdown = i;
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(1.01f);
+            GameManager.Instance.countdown--;
         }
         GameManager.Instance.state = GameManager.GameState.INWAVE;
 
         foreach (var spawn in currentLevel.spawns)
         {
+
 
             // Check if the sequence field exists and is not null
             if (spawn.sequence != null && spawn.sequence.Count > 0)

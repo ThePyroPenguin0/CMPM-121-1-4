@@ -10,7 +10,7 @@ public class Level
     public class Spawn
     {
         public string enemy;
-        public int count;
+        public string count;
         public string hp;   
         public float delay;
         public List<int> sequence;

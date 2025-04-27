@@ -22,9 +22,16 @@
     },
     {
         "name": "cloaker",
-        "sprite": 65,
+        "sprite": 4,
         "hp": 1,
         "speed": 30,
         "damage": 100
+    },
+    {
+        "name": "boss",
+        "sprite": 2,
+        "hp": 100,
+        "speed": 5,
+        "damage": 500
     }
 ]

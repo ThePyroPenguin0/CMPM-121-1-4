@@ -41,9 +41,10 @@ public class EnemySpawner : MonoBehaviour
             level_types[le.name] = le;
         }
 
-        CreateLevel("Easy", new Vector3(0, 90));
-        CreateLevel("Medium", new Vector3(0, 0));
-        CreateLevel("Endless", new Vector3(0, -90));
+        var levelEntries = level_types.Values.ToList();
+        CreateLevel(levelEntries[0].name, new Vector3(0, 90));
+        CreateLevel(levelEntries[1].name, new Vector3(0, 0));
+        CreateLevel(levelEntries[2].name, new Vector3(0, -90)); // I know I can do this with a for loop more dynamically, but I don't want to deal with spacing at this moment
     }
 
     // Added code - Jocelyn 

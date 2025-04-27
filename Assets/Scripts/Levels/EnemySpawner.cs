@@ -22,33 +22,6 @@ public class EnemySpawner : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        /*
-        GameObject rookieSelector = Instantiate(button, level_selector.transform);
-        rookieSelector.transform.localPosition = new Vector3(0, 130);
-        rookieSelector.GetComponent<MenuSelectorController>().spawner = this;
-        rookieSelector.GetComponent<MenuSelectorController>().SetLevel("Rookie Level");
-        rookieSelector.GetComponent<MenuSelectorController>().level = "Easy";
-
-        GameObject mediumSelector = Instantiate(button, level_selector.transform);
-        mediumSelector.transform.localPosition = new Vector3(0, 30);
-        mediumSelector.GetComponent<MenuSelectorController>().spawner = this;
-        mediumSelector.GetComponent<MenuSelectorController>().SetLevel("Medium Level");
-        mediumSelector.GetComponent<MenuSelectorController>().level = "Medium";
-
-        GameObject advSelector = Instantiate(button, level_selector.transform);
-        advSelector.transform.localPosition = new Vector3(0, -70);
-        advSelector.GetComponent<MenuSelectorController>().spawner = this;
-        advSelector.GetComponent<MenuSelectorController>().SetLevel("Advanced Level");
-        advSelector.GetComponent<MenuSelectorController>().level = "Endless";
-        
-        selector.transform.localPosition = new Vector3(0, 130);
-        selector.GetComponent<MenuSelectorController>().spawner = this;
-        selector.GetComponent<MenuSelectorController>().SetLevel("Start");
-        */
-
-        CreateLevel("Rookie Level", new Vector3(0, 130));
-        CreateLevel("Medium Level", new Vector3(0, 30));
-        CreateLevel("Advanced Level", new Vector3(0, -70));
 
         var enemytext = Resources.Load<TextAsset>("enemies");
 
@@ -67,6 +40,10 @@ public class EnemySpawner : MonoBehaviour
             Level le = level.ToObject<Level>();
             level_types[le.name] = le;
         }
+
+        CreateLevel("Easy", new Vector3(0, 90));
+        CreateLevel("Medium", new Vector3(0, 0));
+        CreateLevel("Endless", new Vector3(0, -90));
     }
 
     // Added code - Jocelyn 
@@ -78,6 +55,7 @@ public class EnemySpawner : MonoBehaviour
         MenuSelectorController theMenu = selector.GetComponent<MenuSelectorController>();
         theMenu.spawner = this;
         theMenu.SetLevel(theLevel);
+        currentLevel = level_types[theLevel];
 
         Button theButton = selector.GetComponent<Button>();
         theButton.onClick.AddListener(() => theMenu.StartLevel());
@@ -93,6 +71,7 @@ public class EnemySpawner : MonoBehaviour
     {
         level_selector.gameObject.SetActive(false);
         // this is not nice: we should not have to be required to tell the player directly that the level is starting
+        // ^ Cope and seethe
         GameManager.Instance.player.GetComponent<PlayerController>().StartLevel();
         StartCoroutine(SpawnWave());
     }
@@ -109,7 +88,7 @@ public class EnemySpawner : MonoBehaviour
         GameManager.Instance.countdown = 3;
         for (int i = 3; i > 0; i--)
         {
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(1.01f);
             GameManager.Instance.countdown--;
         }
         GameManager.Instance.state = GameManager.GameState.INWAVE;
@@ -132,6 +111,13 @@ public class EnemySpawner : MonoBehaviour
 
     IEnumerator SpawnZombie(string type)
     {
+        Level.Spawn spawn = currentLevel.spawns.FirstOrDefault(s => s.enemy == type);
+        if (spawn == null)
+        {
+            Debug.LogError($"Spawn for enemy type '{type}' not found in currentLevel.spawns.");
+            yield break;
+        }
+
         Enemy enemyData = enemy_types[type];
 
         SpawnPoint spawn_point = SpawnPoints[Random.Range(0, SpawnPoints.Length)];
@@ -142,7 +128,7 @@ public class EnemySpawner : MonoBehaviour
 
         new_enemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.enemySpriteManager.Get(0);
         EnemyController en = new_enemy.GetComponent<EnemyController>();
-        en.hp = new Hittable(RPN.EvaluateRPN(type, new Dictionary<string, int>() { ["base"] = enemyData.hp, ["wave"] = currentWave }), Hittable.Team.MONSTERS, new_enemy);
+        en.hp = new Hittable(RPN.EvaluateRPN(spawn.hp, new Dictionary<string, int>() { ["base"] = enemy_types[type].hp, ["wave"] = currentWave }), Hittable.Team.MONSTERS, new_enemy);
         en.speed = enemyData.speed;
         GameManager.Instance.AddEnemy(new_enemy);
         yield return new WaitForSeconds(0.5f);

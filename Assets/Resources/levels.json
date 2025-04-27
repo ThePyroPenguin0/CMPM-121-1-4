@@ -27,9 +27,16 @@
             {
                 "enemy": "cloaker",
                 "count": "1",
-                "hp": "1",
+                "hp": "wave 0.5 *",
                 "location": "random"
-            }       
+            },
+            {
+                "enemy": "boss",
+                "count": "0.5 wave *",
+                "hp": "wave base *",
+                "location": "random"
+            }
+
         ]
    },
    {   
@@ -62,6 +69,12 @@
                 "enemy": "cloaker",
                 "count": "1",
                 "hp": "2 wave *",
+                "location": "random"
+            },
+            {
+                "enemy": "boss",
+                "count": "1 wave *",
+                "hp": "wave base 2 * *",
                 "location": "random"
             }         
         ]
@@ -96,7 +109,13 @@
                 "count": "3 wave *",
                 "hp": "1",
                 "location": "random"
-            }         
+            },
+            {
+                "enemy": "boss",
+                "count": "3 wave *",
+                "hp": "wave base 4 * *",
+                "location": "random"
+            }            
         ]
    }
 ]

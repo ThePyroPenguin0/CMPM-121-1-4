@@ -27,7 +27,7 @@
             {
                 "enemy": "cloaker",
                 "count": "1",
-                "hp": "1",
+                "hp": "wave 0.5 *",
                 "location": "random"
             }       
         ]

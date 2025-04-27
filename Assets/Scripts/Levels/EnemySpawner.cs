@@ -95,14 +95,13 @@ public class EnemySpawner : MonoBehaviour
 
         foreach (var spawn in currentLevel.spawns)
         {
-            Debug.Log($"Spawning {spawn.enemy} with hp {spawn.hp}");
 
             // Check if the sequence field exists and is not null
             if (spawn.sequence != null && spawn.sequence.Count > 0)
             {
                 foreach (int group in spawn.sequence)
                 {
-                    Debug.Log($"Spawning {spawn.enemy}, in a group of {group}");
+                    Debug.Log($"Spawning {spawn.enemy}, group of {group}");
                     for (int i = 0; i < group; i++)
                     {
                         StartCoroutine(SpawnZombie(spawn.enemy));
@@ -112,8 +111,8 @@ public class EnemySpawner : MonoBehaviour
             }
             else
             {
-                // If sequence is missing or empty, spawn one enemy
-                Debug.Log($"Spawning {spawn.enemy}, no sequence defined. Defaulting to count spawns.");
+                Debug.Log($"Enemy: {spawn.enemy}, Count: {spawn.count}");
+                //Debug.Log($"Spawning {spawn.enemy}, no sequence defined. Defaulting to {RPN.EvaluateRPN(spawn.count, new Dictionary<string, int>() { ["wave"] = currentWave })} spawns.");
                 for (int i = 0; i < RPN.EvaluateRPN(spawn.count, new Dictionary<string, int>() { ["wave"] = currentWave }); i++)
                 {
                     StartCoroutine(SpawnZombie(spawn.enemy));
@@ -129,12 +128,6 @@ public class EnemySpawner : MonoBehaviour
     IEnumerator SpawnZombie(string type)
     {
         Level.Spawn spawn = currentLevel.spawns.FirstOrDefault(s => s.enemy == type);
-        if (spawn == null)
-        {
-            Debug.LogError($"Spawn for enemy type '{type}' not found in currentLevel.spawns.");
-            yield break;
-        }
-
         Enemy enemyData = enemy_types[type];
 
         SpawnPoint spawn_point = SpawnPoints[Random.Range(0, SpawnPoints.Length)];
@@ -143,7 +136,7 @@ public class EnemySpawner : MonoBehaviour
         Vector3 initial_position = spawn_point.transform.position + new Vector3(offset.x, offset.y, 0);
         GameObject new_enemy = Instantiate(enemy, initial_position, Quaternion.identity);
 
-        new_enemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.enemySpriteManager.Get(0);
+        new_enemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.enemySpriteManager.Get(enemyData.sprite);
         EnemyController en = new_enemy.GetComponent<EnemyController>();
         en.hp = new Hittable(RPN.EvaluateRPN(spawn.hp, new Dictionary<string, int>() { ["base"] = enemy_types[type].hp, ["wave"] = currentWave }), Hittable.Team.MONSTERS, new_enemy);
         en.speed = enemyData.speed;

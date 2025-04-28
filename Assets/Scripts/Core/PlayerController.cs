@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Newtonsoft.Json.Linq;
@@ -5,6 +6,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
@@ -23,12 +25,20 @@ public class PlayerController : MonoBehaviour
 
     public Unit unit;
 
+    TMP_Text numEnemiesKilled;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         unit = GetComponent<Unit>();
         GameManager.Instance.player = gameObject;
         theSpawner = FindObjectOfType<EnemySpawner>();
+
+        TMP_Text [] allText = gameOverUI.GetComponentsInChildren<TMP_Text>(true);
+        numEnemiesKilled = Array.Find(allText, x => x.gameObject.name == "GameOverText");
+        if(numEnemiesKilled != null){
+            Debug.Log("Found some text here = " + numEnemiesKilled.name);
+        }
     }
 
     public void StartLevel()
@@ -78,6 +88,9 @@ public class PlayerController : MonoBehaviour
     }
 
     IEnumerator ShowGameOverScreen(){
+        if(numEnemiesKilled != null){
+            numEnemiesKilled.text = "Level Finished!!! You have killed " + GameManager.Instance.enemiesKilled + " enemies.";
+        }
         gameOverUI.SetActive(true);
         yield return new WaitForSeconds(15f); 
         //gameOverUI.SetActive(false);

@@ -53,7 +53,7 @@ public class RPN
 
         if (stack.Count != 1)
         {
-            throw new InvalidOperationException("Invalid expression.");
+            throw new InvalidOperationException($"Invalid expression: {expression}");
         }
 
         return stack.Pop(); // Returns final value in stack instead of storing popped value in variable. Seemed mildly more efficient.

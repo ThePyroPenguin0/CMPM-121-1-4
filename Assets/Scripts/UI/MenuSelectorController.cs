@@ -27,6 +27,6 @@ public class MenuSelectorController : MonoBehaviour
 
     public void StartLevel()
     {
-        spawner.StartLevel(level);
+        spawner.StartLevel();
     }
 }

@@ -12,7 +12,7 @@ public class Level
         public string enemy;
         public string count;
         public string hp;   
-        public float delay;
+        public string delay = "2";
         public List<int> sequence;
         public string location;
     }

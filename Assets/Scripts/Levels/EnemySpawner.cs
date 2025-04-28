@@ -1,11 +1,10 @@
 using UnityEngine;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using System.IO;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Collections;
 using System.Linq;
+using static Level;
 public class EnemySpawner : MonoBehaviour
 {
     public Image level_selector;
@@ -16,15 +15,15 @@ public class EnemySpawner : MonoBehaviour
     private Dictionary<string, Level> level_types = new Dictionary<string, Level>();
     private Level currentLevel;
     private int currentWave = 1;
+    private bool spawnWaveCalled = false;
 
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
+        Debug.Log(gameObject.name + " " + gameObject.GetInstanceID());
         var enemytext = Resources.Load<TextAsset>("enemies");
-
         JToken jo = JToken.Parse(enemytext.text);
         foreach (var enemy in jo)
         {
@@ -33,7 +32,6 @@ public class EnemySpawner : MonoBehaviour
         }
 
         var leveltext = Resources.Load<TextAsset>("levels");
-
         JToken jo2 = JToken.Parse(leveltext.text);
         foreach (var level in jo2)
         {
@@ -45,6 +43,7 @@ public class EnemySpawner : MonoBehaviour
         CreateLevel(levelEntries[0].name, new Vector3(0, 90));
         CreateLevel(levelEntries[1].name, new Vector3(0, 0));
         CreateLevel(levelEntries[2].name, new Vector3(0, -90)); // I know I can do this with a for loop more dynamically, but I don't want to deal with spacing at this moment - Gabriel
+        //Debug.Log(gameObject.name + " " + gameObject.GetInstanceID());
     }
 
     // Added code - Jocelyn 
@@ -59,7 +58,7 @@ public class EnemySpawner : MonoBehaviour
         currentLevel = level_types[theLevel];
 
         Button theButton = selector.GetComponent<Button>();
-        theButton.onClick.AddListener(() => theMenu.StartLevel());
+        //theButton.onClick.AddListener(() => theMenu.StartLevel());
     }
 
     // Update is called once per frame
@@ -68,12 +67,15 @@ public class EnemySpawner : MonoBehaviour
 
     }
 
-    public void StartLevel(string levelname)
+    public void StartLevel()
     {
         level_selector.gameObject.SetActive(false);
         // this is not nice: we should not have to be required to tell the player directly that the level is starting
-        // ^ Cope and seethe
         GameManager.Instance.player.GetComponent<PlayerController>().StartLevel();
+        foreach (var spawn in currentLevel.spawns)
+        {
+            Debug.Log($"Enemy: {spawn.enemy}, Delay: {spawn.delay}");
+        }
         StartCoroutine(SpawnWave());
     }
 
@@ -85,56 +87,59 @@ public class EnemySpawner : MonoBehaviour
 
     IEnumerator SpawnWave()
     {
+        Debug.Log($"Spawnwave called.");
         GameManager.Instance.state = GameManager.GameState.COUNTDOWN;
         GameManager.Instance.countdown = 3;
         for (int i = 3; i > 0; i--)
         {
-            yield return new WaitForSeconds(1.01f);
+            yield return new WaitForSeconds(1);
             GameManager.Instance.countdown--;
         }
         GameManager.Instance.state = GameManager.GameState.INWAVE;
-
         foreach (var spawn in currentLevel.spawns)
         {
-
-
-            // Check if the sequence field exists and is not null
-            if (spawn.sequence != null && spawn.sequence.Count > 0)
+            Debug.Log($"Enemy: {spawn.enemy}, Delay: {spawn.delay}");
+        }
+        foreach (var spawn in currentLevel.spawns)
+        {
+            int spawnCount = RPN.EvaluateRPN(spawn.count, new Dictionary<string, int>() { ["wave"] = currentWave });
+            int spawned = 0;
+            if (spawn.sequence != null)
             {
-                foreach (int group in spawn.sequence)
+                Debug.Log($"Sequence provided for {spawn.enemy}");
+                while (spawned < spawnCount)
                 {
-                    Debug.Log($"Spawning {spawn.enemy}, group of {group}");
-                    for (int i = 0; i < group; i++)
+                    foreach (int group in spawn.sequence)
                     {
-                        StartCoroutine(SpawnZombie(spawn.enemy));
+                        for (int i = 0; i < group && spawned < spawnCount; i++)
+                        {
+                            StartCoroutine(SpawnZombie(spawn.enemy));
+                            spawned++;
+                        }
+                        Debug.Log($"Spawns left for {spawn.enemy}: {spawnCount - spawned}");
+                        yield return new WaitForSeconds(RPN.EvaluateRPN(spawn.delay, new Dictionary<string, int>()));
                     }
-                    yield return new WaitForSeconds(spawn.delay);
                 }
             }
             else
             {
-                Debug.Log($"Enemy: {spawn.enemy}, Count: {spawn.count}");
-                //Debug.Log($"Spawning {spawn.enemy}, no sequence defined. Defaulting to {RPN.EvaluateRPN(spawn.count, new Dictionary<string, int>() { ["wave"] = currentWave })} spawns.");
-                for (int i = 0; i < RPN.EvaluateRPN(spawn.count, new Dictionary<string, int>() { ["wave"] = currentWave }); i++)
+                Debug.Log($"No sequence provided for {spawn.enemy}");
+                while (spawned < RPN.EvaluateRPN(spawn.count, new Dictionary<string, int>() { ["wave"] = currentWave }))
                 {
+                    Debug.Log($"Spawn delay for {spawn.enemy}: {spawn.delay}");
                     StartCoroutine(SpawnZombie(spawn.enemy));
+                    yield return new WaitForSeconds(RPN.EvaluateRPN(spawn.delay, new Dictionary<string, int>()));
+                    spawned++;
+                    Debug.Log($"Spawns left for {spawn.enemy}: {RPN.EvaluateRPN(spawn.count, new Dictionary<string, int>() { ["wave"] = currentWave }) - spawned}");
                 }
-                yield return new WaitForSeconds(spawn.delay);
+
             }
         }
         yield return new WaitWhile(() => GameManager.Instance.enemy_count > 0);
-        /*
-        if(PlayerController.Instance.player.GetComponent<PlayerController>().hp != 0){
-            GameManager.Instance.state = GameManager.GameState.WAVEEND;
-        }
-        
-        if(GameManager.Instance.player.GetComponent<PlayerController>().hp.hp != 0){
-            GameManager.Instance.state = GameManager.GameState.WAVEEND;
-        }
-        */
 
-        GameManager.Instance.state = GameManager.GameState.WAVEEND;
+        spawnWaveCalled = false;
         currentWave++;
+        GameManager.Instance.state = GameManager.GameState.WAVEEND;
     }
 
     IEnumerator SpawnZombie(string type)
@@ -153,6 +158,7 @@ public class EnemySpawner : MonoBehaviour
         en.hp = new Hittable(RPN.EvaluateRPN(spawn.hp, new Dictionary<string, int>() { ["base"] = enemy_types[type].hp, ["wave"] = currentWave }), Hittable.Team.MONSTERS, new_enemy);
         en.speed = enemyData.speed;
         GameManager.Instance.AddEnemy(new_enemy);
-        yield return new WaitForSeconds(0.5f);
+        yield return null;
+        //yield return new WaitForSeconds(spawn.delay);
     }
 }

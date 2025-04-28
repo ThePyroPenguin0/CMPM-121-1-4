@@ -28,6 +28,8 @@ public class GameManager
     }
 
     public GameObject player;
+
+    public int enemiesKilled = 0;
     
     public ProjectileManager projectileManager;
     public SpellIconManager spellIconManager;
@@ -45,6 +47,7 @@ public class GameManager
     public void RemoveEnemy(GameObject enemy)
     {
         enemies.Remove(enemy);
+        enemiesKilled++; 
     }
 
     public GameObject GetClosestEnemy(Vector3 point)

@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Collections;
 using System.Linq;
-using static Level;
+using UnityEngine.UIElements;
 public class EnemySpawner : MonoBehaviour
 {
-    public Image level_selector;
+    public UnityEngine.UI.Image level_selector;
     public GameObject button;
     public GameObject enemy;
     public SpawnPoint[] SpawnPoints;
@@ -15,14 +15,13 @@ public class EnemySpawner : MonoBehaviour
     private Dictionary<string, Level> level_types = new Dictionary<string, Level>();
     private Level currentLevel;
     private int currentWave = 1;
-    private bool spawnWaveCalled = false;
 
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        Debug.Log(gameObject.name + " " + gameObject.GetInstanceID());
+        int buttonPosition = 90;
         var enemytext = Resources.Load<TextAsset>("enemies");
         JToken jo = JToken.Parse(enemytext.text);
         foreach (var enemy in jo)
@@ -37,29 +36,26 @@ public class EnemySpawner : MonoBehaviour
         {
             Level le = level.ToObject<Level>();
             level_types[le.name] = le;
+
+            GameObject selector = Instantiate(button, level_selector.transform);
+            selector.transform.localPosition = new Vector3(0, buttonPosition);
+            selector.GetComponent<MenuSelectorController>().spawner = this;
+            selector.GetComponent<MenuSelectorController>().SetLevel(le.name);
+            buttonPosition -= 90;
         }
 
-        var levelEntries = level_types.Values.ToList();
+       /* var levelEntries = level_types.Values.ToList();
         CreateLevel(levelEntries[0].name, new Vector3(0, 90));
         CreateLevel(levelEntries[1].name, new Vector3(0, 0));
         CreateLevel(levelEntries[2].name, new Vector3(0, -90)); // I know I can do this with a for loop more dynamically, but I don't want to deal with spacing at this moment - Gabriel
-        //Debug.Log(gameObject.name + " " + gameObject.GetInstanceID());
+       */
     }
 
-    // Added code - Jocelyn 
-    void CreateLevel(string theLevel, Vector3 position)
+    // Added code - Jocelyn
+    // Fixed code - Gabriel
+    /*void CreateLevel(string theLevel, Vector3 position)
     {
-        GameObject selector = Instantiate(button, level_selector.transform);
-        selector.transform.localPosition = position;
-
-        MenuSelectorController theMenu = selector.GetComponent<MenuSelectorController>();
-        theMenu.spawner = this;
-        theMenu.SetLevel(theLevel);
-        currentLevel = level_types[theLevel];
-
-        Button theButton = selector.GetComponent<Button>();
-        //theButton.onClick.AddListener(() => theMenu.StartLevel());
-    }
+    }*/
 
     // Update is called once per frame
     void Update()
@@ -67,27 +63,25 @@ public class EnemySpawner : MonoBehaviour
 
     }
 
-    public void StartLevel()
+    public void StartLevel(string level_name)
     {
+        currentLevel = level_types[level_name];
         level_selector.gameObject.SetActive(false);
         // this is not nice: we should not have to be required to tell the player directly that the level is starting
         GameManager.Instance.player.GetComponent<PlayerController>().StartLevel();
-        foreach (var spawn in currentLevel.spawns)
-        {
-            Debug.Log($"Enemy: {spawn.enemy}, Delay: {spawn.delay}");
-        }
         StartCoroutine(SpawnWave());
     }
 
     public void NextWave()
     {
+        currentWave++;
         StartCoroutine(SpawnWave());
     }
 
 
     IEnumerator SpawnWave()
     {
-        Debug.Log($"Spawnwave called.");
+        //Debug.Log($"Spawnwave called.");
         GameManager.Instance.state = GameManager.GameState.COUNTDOWN;
         GameManager.Instance.countdown = 3;
         for (int i = 3; i > 0; i--)
@@ -136,15 +130,12 @@ public class EnemySpawner : MonoBehaviour
             }
         }
         yield return new WaitWhile(() => GameManager.Instance.enemy_count > 0);
-
-        spawnWaveCalled = false;
-        currentWave++;
         GameManager.Instance.state = GameManager.GameState.WAVEEND;
     }
 
     IEnumerator SpawnZombie(string type)
     {
-        Level.Spawn spawn = currentLevel.spawns.FirstOrDefault(s => s.enemy == type);
+        Spawn spawn = currentLevel.spawns.FirstOrDefault(s => s.enemy == type);
         Enemy enemyData = enemy_types[type];
 
         SpawnPoint spawn_point = SpawnPoints[Random.Range(0, SpawnPoints.Length)];

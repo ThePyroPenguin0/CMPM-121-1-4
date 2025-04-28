@@ -1,7 +1,7 @@
 [
    {   
        "name": "Easy",
-       "waves": 10,
+       "waves": 2,
        "spawns": [
             {
                 "enemy": "zombie",
@@ -9,7 +9,10 @@
                 "hp": "base 5 wave * +",
                 "delay": "5",
                 "sequence": [1,2,3],
-                "location": "random"
+                "location": "random",
+                "damage": "base",
+                "speed": "base"
+
             },
             {   
                 "enemy": "skeleton",
@@ -17,28 +20,37 @@
                 "hp": "30 wave *",
                 "delay": "3",
                 "sequence": [2, 2],
-                "location": "random red"
+                "location": "random red",
+                "damage": "base wave *",
+                "speed": "base 2 *"
+                
             },
             {
                 "enemy": "warlock",
                 "count": "wave 2 /",
-                "hp": "100 25 wave + *",
+                "hp": "10 25 wave + *",
                 "delay": "5",
-                "location": "random bone"
+                "location": "random bone",
+                "damage": "base wave 5 + *",
+                "speed": "base wave *"
             },
             {
                 "enemy": "cloaker",
                 "count": "1",
-                "hp": "wave 0.5 *",
+                "hp": "wave 2 base * *",
                 "delay": "15",
-                "location": "random"
+                "location": "random",
+                "damage": "base 10 *",
+                "speed": "base"
             },
             {
                 "enemy": "boss",
                 "count": "1",
-                "hp": "wave base *",
+                "hp": "100 wave base * *",
                 "delay": "10",
-                "location": "random"
+                "location": "random",
+                "damage": "base 2 /",
+                "speed": "base 2 /"
             }
 
         ]
@@ -58,14 +70,14 @@
             {   
                 "enemy": "skeleton",
                 "count": "wave 2 *",
-                "hp": "25 wave *",
+                "hp": "750 wave *",
                 "sequence": [2, 2],
                 "location": "random red"
             },
             {
                 "enemy": "warlock",
                 "count": "wave 5 / 1 wave 5 % - *",
-                "hp": "75 50 wave *",
+                "hp": "75 50 wave * +",
                 "damage": "base 10 +",
                 "location": "random bone"
             },
@@ -73,6 +85,7 @@
                 "enemy": "cloaker",
                 "count": "1",
                 "hp": "2 wave *",
+                "damage": "base wave *",
                 "location": "random"
             },
             {

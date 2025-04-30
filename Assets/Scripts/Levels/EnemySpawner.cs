@@ -41,6 +41,8 @@ public class EnemySpawner : MonoBehaviour
             level_types[le.name] = le;
         }
 
+        // read the spells.json file here similar to above code 
+
         var levelEntries = level_types.Values.ToList();
         CreateLevel(levelEntries[0].name, new Vector3(0, 90));
         CreateLevel(levelEntries[1].name, new Vector3(0, 0));

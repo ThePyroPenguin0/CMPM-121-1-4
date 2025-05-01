@@ -16,8 +16,7 @@ public class EnemySpawner : MonoBehaviour
     private Dictionary<string, Level> level_types = new Dictionary<string, Level>();
     private Level currentLevel;
     private int currentWave = 1;
-
-
+    private List<string> spells = new List<string>();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -42,6 +41,12 @@ public class EnemySpawner : MonoBehaviour
         }
 
         // read the spells.json file here similar to above code 
+        var spellstext = Resources.Load<TextAsset>("spells");
+
+        JObject jo3 = JObject.Parse(spellstext.text);
+        foreach(var spell in jo3){
+            spells.Add(spell.Key);
+        }
 
         var levelEntries = level_types.Values.ToList();
         CreateLevel(levelEntries[0].name, new Vector3(0, 90));

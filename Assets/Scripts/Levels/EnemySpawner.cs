@@ -46,6 +46,7 @@ public class EnemySpawner : MonoBehaviour
         JObject jo3 = JObject.Parse(spellstext.text);
         foreach(var spell in jo3){
             spells.Add(spell.Key);
+            Debug.Log("The spell ----- " + spell.Key + ". ");
         }
 
         var levelEntries = level_types.Values.ToList();

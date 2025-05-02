@@ -36,17 +36,17 @@ public class PlayerController : MonoBehaviour
 
         TMP_Text [] allText = gameOverUI.GetComponentsInChildren<TMP_Text>(true);
         numEnemiesKilled = Array.Find(allText, x => x.gameObject.name == "GameOverText");
-        if(numEnemiesKilled != null){
-            Debug.Log("Found some text here = " + numEnemiesKilled.name);
-        }
+        
     }
 
     public void StartLevel()
     {
-        spellcaster = new SpellCaster(125, 8, Hittable.Team.PLAYER);
+        spellcaster = new SpellCaster(RPN.EvaluateRPN("90 wave 10 * +", new Dictionary<string, int>() { ["wave"] = theSpawner.currentWave }), RPN.EvaluateRPN("10 wave +", new Dictionary<string, int>() { ["wave"] = theSpawner.currentWave }), Hittable.Team.PLAYER);
         StartCoroutine(spellcaster.ManaRegeneration());
         
-        hp = new Hittable(100, Hittable.Team.PLAYER, gameObject);
+
+
+        hp = new Hittable(RPN.EvaluateRPN("95 wave 5 * +", new Dictionary<string, int>() { ["wave"] = theSpawner.currentWave }), Hittable.Team.PLAYER, gameObject);
         hp.OnDeath += Die;
         hp.team = Hittable.Team.PLAYER;
 

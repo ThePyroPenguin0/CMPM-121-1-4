@@ -1,10 +1,8 @@
 using UnityEngine;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
-using UnityEngine.UI;
 using System.Collections;
 using System.Linq;
-using UnityEngine.UIElements;
 public class EnemySpawner : MonoBehaviour
 {
     public UnityEngine.UI.Image level_selector;
@@ -14,7 +12,7 @@ public class EnemySpawner : MonoBehaviour
     private Dictionary<string, Enemy> enemy_types = new Dictionary<string, Enemy>();
     private Dictionary<string, Level> level_types = new Dictionary<string, Level>();
     private Level currentLevel;
-    private int currentWave = 1;
+    public int currentWave = 1;
 
 
 

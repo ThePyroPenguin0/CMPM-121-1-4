@@ -2,25 +2,34 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+
 public class Spell 
 {
     public float last_cast;
     public SpellCaster owner;
     public Hittable.Team team;
+    private string name;
+    private string description;
+    private int icon;
+    private int damage; 
+    private JObject damageAmount;
+    private int mana_cost;
+    private int cooldown;
+    private Dictionary<string, string> projectile;
 
     // New properties for asgn2
     public string name;
     public string description;
-    public int icon;
-    public int N = 1; // Count of projectiles
-    public float spray = 0f;
-    public Damage damage;
-    public int mana_cost;
-    public float cooldown;
+    private int icon;
+    private int N = 1; // Count of projectiles
+    private float spray = 0f;
+    private Damage damage;
+    private int mana_cost;
+    private float cooldown;
     public Projectile projectile;
     public Projectile secondary_projectile;
-    public float? delay;
-    public float? angle;
+    private float? delay;
+    private float? angle;
 
     public List<ValueMod> DamageModifiers = new List<ValueMod>();
     public List<ValueMod> ManaCostModifiers = new List<ValueMod>();
@@ -47,7 +56,7 @@ public class Spell
         return damage.amount;
     }
 
-    public float GetCooldown()
+    public int GetCooldown()
     {
         return cooldown;
     }
@@ -55,6 +64,31 @@ public class Spell
     public virtual int GetIcon()
     {
         return icon;
+    }
+
+    public void SetName(string name)
+    {
+        this.name = name;
+    }
+
+    public void SetManaCost(int mana_cost)
+    {
+        this.mana_cost = mana_cost;
+    }
+
+    public void SetDamage(JObject damage)
+    {
+        this.damage = damage;
+    }
+
+    public void SetCooldown(Cooldown)
+    {
+        this.cooldown = cooldown;
+    }
+
+    public void SetIcon(int icon)
+    {
+        this.icon = icon; 
     }
 
     public bool IsReady()
@@ -80,6 +114,14 @@ public class Spell
             other.Damage(new Damage(GetDamage(), damage.type));
         }
 
+    }
+
+    public virtual void SetAttributes(JObject attributes){
+        SetName(attributes.Value<string>("name"));
+        SetManaCost(attributes.Value<int>("mana_cost"));
+        SetDamage(attributes.Value<JObject>("damage"));
+        SetCooldown(attributes.Value<int>("cooldown"));
+        SetIcon(attributes.Value<int>("icon"));
     }
 
 }

@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 
 public class PlayerController : MonoBehaviour
@@ -24,6 +25,8 @@ public class PlayerController : MonoBehaviour
     public int speed;
 
     public Unit unit;
+
+    public Dictionary<string, Spell> spellList;
 
     TMP_Text numEnemiesKilled;
     private List<string> spells = new List<string>();
@@ -61,10 +64,13 @@ public class PlayerController : MonoBehaviour
         
     }
 
-    public void StartLevel()
+    public void StartLevel(Dictionary<string, JObject> spells)
     {
+        int randomEntry = UnityEngine.Random.Range(0, spells.Count);
+        JObject spellAttributes = spells.ElementAt(randomEntry).Value;
         spellcaster = new SpellCaster(RPN.EvaluateRPN("90 wave 10 * +", new Dictionary<string, int>() { ["wave"] = theSpawner.currentWave }), RPN.EvaluateRPN("10 wave +", new Dictionary<string, int>() { ["wave"] = theSpawner.currentWave }), Hittable.Team.PLAYER);
         StartCoroutine(spellcaster.ManaRegeneration());
+        // SpellBuilder.Build(spellcaster);
         
         hp = new Hittable(RPN.EvaluateRPN("95 wave 5 * +", new Dictionary<string, int>() { ["wave"] = theSpawner.currentWave }), Hittable.Team.PLAYER, gameObject);
         hp.OnDeath += Die;

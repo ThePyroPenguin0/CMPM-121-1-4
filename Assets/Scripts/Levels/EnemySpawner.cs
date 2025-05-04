@@ -12,9 +12,8 @@ public class EnemySpawner : MonoBehaviour
     private Dictionary<string, Enemy> enemy_types = new Dictionary<string, Enemy>();
     private Dictionary<string, Level> level_types = new Dictionary<string, Level>();
     private Level currentLevel;
-    public int currentWave = 1;
-
-
+    private int currentWave = 1;
+    private Dictionary<string, JObject> spells = new Dictionary<string, JObject>();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -42,11 +41,12 @@ public class EnemySpawner : MonoBehaviour
             buttonPosition -= 90;
         }
 
-       /* var levelEntries = level_types.Values.ToList();
+
+        var levelEntries = level_types.Values.ToList();
         CreateLevel(levelEntries[0].name, new Vector3(0, 90));
         CreateLevel(levelEntries[1].name, new Vector3(0, 0));
         CreateLevel(levelEntries[2].name, new Vector3(0, -90)); // I know I can do this with a for loop more dynamically, but I don't want to deal with spacing at this moment - Gabriel
-       */
+       
     }
 
     // Added code - Jocelyn

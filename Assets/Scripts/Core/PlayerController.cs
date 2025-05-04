@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 
 public class PlayerController : MonoBehaviour
@@ -25,6 +26,8 @@ public class PlayerController : MonoBehaviour
 
     public Unit unit;
 
+    public Dictionary<string, Spell> spellList;
+
     TMP_Text numEnemiesKilled;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -41,10 +44,15 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void StartLevel()
+    public void StartLevel(Dictionary<string, JObject> spells)
     {
-        spellcaster = new SpellCaster(125, 8, Hittable.Team.PLAYER);
+        int randomEntry = UnityEngine.Random.Range(0, spells.Count);
+        JObject spellAttributes = spells.ElementAt(randomEntry).Value;
+        int manaCost = int.Parse(spellAttributes["mana_cost"].Value<string>());
+        spellcaster = new SpellCaster(manaCost, (manaCost/15), Hittable.Team.PLAYER);
+        // spellcaster = new SpellCaster(125, 8, Hittable.Team.PLAYER);
         StartCoroutine(spellcaster.ManaRegeneration());
+        // SpellBuilder.Build(spellcaster);
         
         hp = new Hittable(100, Hittable.Team.PLAYER, gameObject);
         hp.OnDeath += Die;

@@ -8,6 +8,14 @@ public class Spell
     public float last_cast;
     public SpellCaster owner;
     public Hittable.Team team;
+    private string name;
+    private string description;
+    private int icon;
+    private int damage; 
+    private JObject damageAmount;
+    private int manaCost;
+    private int cooldown;
+    private Dictionary<string, string> projectile;
 
     public Spell(SpellCaster owner)
     {
@@ -16,27 +24,52 @@ public class Spell
 
     public string GetName()
     {
-        return "Bolt";
+        return name;
     }
 
     public int GetManaCost()
     {
-        return 10;
+        return manaCost;
     }
 
     public int GetDamage()
     {
-        return 100;
+        return damage;
     }
 
-    public float GetCooldown()
+    public int GetCooldown()
     {
-        return 0.75f;
+        return cooldown;
     }
 
     public virtual int GetIcon()
     {
-        return 0;
+        return icon;
+    }
+
+    public void SetName(string theName)
+    {
+        name = theName;
+    }
+
+    public void SetManaCost(int theManaCost)
+    {
+        manaCost = theManaCost;
+    }
+
+    public void SetDamage(JObject theDamage)
+    {
+        damageAmount = theDamage;
+    }
+
+    public void SetCooldown(int theCooldown)
+    {
+        cooldown = theCooldown;
+    }
+
+    public void SetIcon(int theIcon)
+    {
+        icon = theIcon; 
     }
 
     public bool IsReady()
@@ -58,6 +91,14 @@ public class Spell
             other.Damage(new Damage(GetDamage(), Damage.Type.ARCANE));
         }
 
+    }
+
+    public virtual void SetAttributes(JObject attributes){
+        SetName(attributes.Value<string>("name"));
+        SetManaCost(attributes.Value<int>("mana_cost"));
+        SetDamage(attributes.Value<JObject>("damage"));
+        SetCooldown(attributes.Value<int>("cooldown"));
+        SetIcon(attributes.Value<int>("icon"));
     }
 
 }

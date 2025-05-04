@@ -16,7 +16,7 @@ public class EnemySpawner : MonoBehaviour
     private Dictionary<string, Level> level_types = new Dictionary<string, Level>();
     private Level currentLevel;
     private int currentWave = 1;
-    private List<string> spells = new List<string>();
+    private Dictionary<string, JObject> spells = new Dictionary<string, JObject>();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -45,8 +45,8 @@ public class EnemySpawner : MonoBehaviour
 
         JObject jo3 = JObject.Parse(spellstext.text);
         foreach(var spell in jo3){
-            spells.Add(spell.Key);
-            Debug.Log("The spell ----- " + spell.Key + ". ");
+            spells.Add(spell.Key, (JObject)spell.Value);
+            Debug.Log("The spell ----- " + spell + ". ");
         }
 
         var levelEntries = level_types.Values.ToList();
@@ -81,7 +81,7 @@ public class EnemySpawner : MonoBehaviour
         level_selector.gameObject.SetActive(false);
         // this is not nice: we should not have to be required to tell the player directly that the level is starting
         // ^ Cope and seethe
-        GameManager.Instance.player.GetComponent<PlayerController>().StartLevel();
+        GameManager.Instance.player.GetComponent<PlayerController>().StartLevel(spells);
         StartCoroutine(SpawnWave());
     }
 

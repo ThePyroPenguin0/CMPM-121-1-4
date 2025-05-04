@@ -81,7 +81,6 @@ public class Spell
         this.damage = damage;
     }
 
-    public void SetCooldown(Cooldown)
     {
         this.cooldown = cooldown;
     }

@@ -22,6 +22,11 @@ public class Spell
     public float? delay;
     public float? angle;
 
+    public List<ValueMod> DamageModifiers = new List<ValueMod>();
+    public List<ValueMod> ManaCostModifiers = new List<ValueMod>();
+    public List<ValueMod> CooldownModifiers = new List<ValueMod>();
+    
+
     public Spell(SpellCaster owner)
     {
         this.owner = owner;
@@ -85,37 +90,62 @@ public class Projectile
     public float speed = 0f;
     public float lifetime = 0f;
     public int sprite = 0;
+    public List<ValueMod> SpeedModifiers = new List<ValueMod>();
+}
+
+
+public class ValueMod
+{
+    public delegate float Modifier(float value);
+    private Modifier modifier;
+
+    public ValueMod(Modifier modifier)
+    {
+        this.modifier = modifier;
+    }
+
+    public float Apply(float value)
+    {
+        return modifier(value);
+    }
+
+    public static float ApplyAll(float baseValue, List<ValueMod> mods)
+    {
+        float moddedValue = baseValue;
+        foreach (ValueMod mod in mods)
+        {
+            moddedValue = mod.Apply(moddedValue);
+        }
+        return moddedValue;
+    }
 }
 
 public class ModifierSpell : Spell
 {
-    public Spell baseSpell;
-    public float damage_multiplier = 1f;
-    public float mana_multiplier = 1f;
-    public float speed_multiplier = 1f;
-    public int mana_adder = 0;
-    public float cooldown_multiplier = 1f;
-    public int projectile_adder = 0;
+    private Spell baseSpell;
 
     public ModifierSpell(Spell baseSpell) : base(baseSpell.owner)
     {
         this.baseSpell = baseSpell;
     }
 
-    public void ModifySpell()
+    public void AddDamageModifier(ValueMod modifier)
     {
-        baseSpell.mana_cost = baseSpell.mana_cost + mana_adder;
-        baseSpell.mana_cost = Mathf.RoundToInt(baseSpell.mana_cost * mana_multiplier);
-        baseSpell.damage.amount = Mathf.RoundToInt(baseSpell.damage.amount * damage_multiplier);
-        baseSpell.projectile.speed = Mathf.RoundToInt(baseSpell.projectile.speed * speed_multiplier);
-        baseSpell.cooldown = baseSpell.cooldown * cooldown_multiplier;
-        baseSpell.N += projectile_adder;
-        return;
+        baseSpell.DamageModifiers.Add(modifier);
+    }
+
+    public void AddManaCostModifier(ValueMod modifier)
+    {
+        baseSpell.ManaCostModifiers.Add(modifier);
+    }
+
+    public void AddCooldownModifier(ValueMod modifier)
+    {
+        baseSpell.CooldownModifiers.Add(modifier);
     }
 
     public override IEnumerator Cast(Vector3 where, Vector3 target, Hittable.Team team)
     {
-        ModifySpell();
         return baseSpell.Cast(where, target, team);
     }
 }

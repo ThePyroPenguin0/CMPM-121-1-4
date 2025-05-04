@@ -12,7 +12,8 @@ public class Spell
     public string name;
     public string description;
     public int icon;
-    public int? N; // Count of projectiles
+    public int N = 1; // Count of projectiles
+    public float spray = 0f;
     public Damage damage;
     public int mana_cost;
     public float cooldown;
@@ -67,7 +68,7 @@ public class Spell
         yield return new WaitForEndOfFrame();
     }
 
-    void OnHit(Hittable other, Vector3 impact)
+    public void OnHit(Hittable other, Vector3 impact)
     {
         if (other.team != team)
         {
@@ -86,12 +87,9 @@ public class Projectile
     public int sprite = 0;
 }
 
-public class ModifierSpell
+public class ModifierSpell : Spell
 {
     public Spell baseSpell;
-
-    public string name = "No name specified";
-    public string description = "No description specified";
     public float damage_multiplier = 1f;
     public float mana_multiplier = 1f;
     public float speed_multiplier = 1f;
@@ -99,7 +97,12 @@ public class ModifierSpell
     public float cooldown_multiplier = 1f;
     public int projectile_adder = 0;
 
-    public void CastModifiedSpell() 
+    public ModifierSpell(Spell baseSpell) : base(baseSpell.owner)
+    {
+        this.baseSpell = baseSpell;
+    }
+
+    public void ModifySpell()
     {
         baseSpell.mana_cost = baseSpell.mana_cost + mana_adder;
         baseSpell.mana_cost = Mathf.RoundToInt(baseSpell.mana_cost * mana_multiplier);
@@ -107,7 +110,12 @@ public class ModifierSpell
         baseSpell.projectile.speed = Mathf.RoundToInt(baseSpell.projectile.speed * speed_multiplier);
         baseSpell.cooldown = baseSpell.cooldown * cooldown_multiplier;
         baseSpell.N += projectile_adder;
+        return;
+    }
 
-        baseSpell.Cast(Vector3.zero, Vector3.zero, Hittable.Team.PLAYER); // Debug values atm, had to throw in something fast
+    public override IEnumerator Cast(Vector3 where, Vector3 target, Hittable.Team team)
+    {
+        ModifySpell();
+        return baseSpell.Cast(where, target, team);
     }
 }

@@ -27,6 +27,7 @@ public class SpellCaster
         this.mana_reg = mana_reg;
         this.team = team;
         spell = new SpellBuilder().Build(this);
+        Debug.Log($"Current mana: {max_mana}. Current mana regeneration: {mana_reg}");
     }
 
     public IEnumerator Cast(Vector3 where, Vector3 target)

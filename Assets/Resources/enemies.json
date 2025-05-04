@@ -24,8 +24,8 @@
         "name": "cloaker",
         "sprite": 4,
         "hp": 1,
-        "speed": 70,
-        "damage": 100
+        "speed": 30,
+        "damage": 10000
     },
     {
         "name": "boss",

@@ -28,6 +28,8 @@ public class PlayerController : MonoBehaviour
 
     public Dictionary<string, Spell> spellList;
 
+    public Dictionary<string, JObject> manaObjects = new Dictionary<string, JObject>();
+
     TMP_Text numEnemiesKilled;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -45,9 +47,19 @@ public class PlayerController : MonoBehaviour
     }
 
     public void StartLevel(Dictionary<string, JObject> spells)
-    {
-        int randomEntry = UnityEngine.Random.Range(0, spells.Count);
-        JObject spellAttributes = spells.ElementAt(randomEntry).Value;
+    {   
+        if(manaObjects.Count > 0){
+            manaObjects.Clear();
+        }
+
+        for(int i = 0; i < spells.Count; i++){
+            if(spells.ElementAt(i).Value.ContainsKey("mana_cost")){
+                manaObjects.Add(spells.ElementAt(i).Key, spells.ElementAt(i).Value);
+            }
+        }
+
+        int randomEntry = UnityEngine.Random.Range(0, manaObjects.Count);
+        JObject spellAttributes = manaObjects.ElementAt(randomEntry).Value;
         int manaCost = int.Parse(spellAttributes["mana_cost"].Value<string>());
         spellcaster = new SpellCaster(manaCost, (manaCost/15), Hittable.Team.PLAYER);
         // spellcaster = new SpellCaster(125, 8, Hittable.Team.PLAYER);

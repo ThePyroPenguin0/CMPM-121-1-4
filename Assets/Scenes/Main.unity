@@ -2099,6 +2099,7 @@ MonoBehaviour:
   - {fileID: 2073311049}
   - {fileID: 1577913788}
   - {fileID: 587991943}
+  currentWave: 1
 --- !u!1 &532755679
 GameObject:
   m_ObjectHideFlags: 0
@@ -5875,7 +5876,7 @@ MonoBehaviour:
   spellui: {fileID: 2085212185}
   gameOverUI: {fileID: 984293908}
   theSpawner: {fileID: 0}
-  speed: 5
+  speed: 15
   unit: {fileID: 0}
 --- !u!4 &1718273953
 Transform:

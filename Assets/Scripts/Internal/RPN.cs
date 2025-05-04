@@ -23,6 +23,10 @@ public class RPN
             {
                 stack.Push(library["wave"]);
             }
+            else if (token == "power")
+            {
+                stack.Push(library["power"]);
+            }
             else
             {
                 int b = stack.Pop();

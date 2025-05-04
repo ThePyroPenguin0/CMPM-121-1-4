@@ -73,14 +73,20 @@ public class PlayerController : MonoBehaviour
         }
 
         for(int i = 0; i < spells.Count; i++){
+            //Debug.Log("How many spells: " + spells.Count + " SpellEntry: " + spells.ElementAt(i).Value);
             if(spells.ElementAt(i).Value.ContainsKey("mana_cost")){
                 manaObjects.Add(spells.ElementAt(i).Key, spells.ElementAt(i).Value);
             }
         }
 
         int randomEntry = UnityEngine.Random.Range(0, manaObjects.Count);
+        Debug.Log("How many manaobjects: " + manaObjects.Count + " RandomEntry: " + randomEntry);
         JObject spellAttributes = manaObjects.ElementAt(randomEntry).Value;
-        int manaCost = int.Parse(spellAttributes["mana_cost"].Value<string>());
+        //if (spellAttributes["mana_cost"].Value<string>())
+        //int manaCost = int.Parse(spellAttributes["mana_cost"].Value<string>());
+        int manaCost = RPN.EvaluateRPN(spellAttributes["mana_cost"].Value<string>(), new Dictionary<string, int> { ["wave"] = theSpawner.currentWave , [ "power" ] = 100});
+
+        Debug.Log("ManaCost ========= " + manaCost + "\nThe Spells ========= " + spellAttributes + "\nThe Spell Value ====== " + spellAttributes["mana_cost"].Value<string>());
         spellcaster = new SpellCaster(manaCost, (manaCost/15), Hittable.Team.PLAYER);
         // spellcaster = new SpellCaster(125, 8, Hittable.Team.PLAYER);
 

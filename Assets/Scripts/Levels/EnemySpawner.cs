@@ -3,6 +3,8 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
+using UnityEngine.UI; 
+
 public class EnemySpawner : MonoBehaviour
 {
     public UnityEngine.UI.Image level_selector;
@@ -12,7 +14,7 @@ public class EnemySpawner : MonoBehaviour
     private Dictionary<string, Enemy> enemy_types = new Dictionary<string, Enemy>();
     private Dictionary<string, Level> level_types = new Dictionary<string, Level>();
     private Level currentLevel;
-    private int currentWave = 1;
+    public int currentWave = 1;
     private Dictionary<string, JObject> spells = new Dictionary<string, JObject>();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -41,6 +43,14 @@ public class EnemySpawner : MonoBehaviour
             buttonPosition -= 90;
         }
 
+        // read the spells.json file here similar to above code 
+        var spellstext = Resources.Load<TextAsset>("spells");
+ 
+        JObject jo3 = JObject.Parse(spellstext.text);
+        foreach(var spell in jo3){
+            spells.Add(spell.Key, (JObject)spell.Value);
+            Debug.Log("The spell ----- " + spell + ". ");
+        }
 
         var levelEntries = level_types.Values.ToList();
         CreateLevel(levelEntries[0].name, new Vector3(0, 90));
@@ -51,9 +61,19 @@ public class EnemySpawner : MonoBehaviour
 
     // Added code - Jocelyn
     // Fixed code - Gabriel
-    /*void CreateLevel(string theLevel, Vector3 position)
+    void CreateLevel(string theLevel, Vector3 position)
     {
-    }*/
+        GameObject selector = Instantiate(button, level_selector.transform);
+        selector.transform.localPosition = position;
+
+        MenuSelectorController theMenu = selector.GetComponent<MenuSelectorController>();
+        theMenu.spawner = this;
+        theMenu.SetLevel(theLevel);
+        currentLevel = level_types[theLevel];
+
+        Button theButton = selector.GetComponent<Button>();
+        theButton.onClick.AddListener(() => theMenu.StartLevel());
+    }
 
     // Update is called once per frame
     void Update()
@@ -65,8 +85,9 @@ public class EnemySpawner : MonoBehaviour
     {
         currentLevel = level_types[level_name];
         level_selector.gameObject.SetActive(false);
+        Debug.Log("=========== Spells ============== " + spells);
         // this is not nice: we should not have to be required to tell the player directly that the level is starting
-        GameManager.Instance.player.GetComponent<PlayerController>().StartLevel();
+        GameManager.Instance.player.GetComponent<PlayerController>().StartLevel(spells);
         StartCoroutine(SpawnWave());
     }
 

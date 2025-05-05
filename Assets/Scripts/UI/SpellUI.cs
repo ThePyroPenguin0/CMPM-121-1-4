@@ -22,13 +22,20 @@ public class SpellUI : MonoBehaviour
 
     public void SetSpell(Spell spell)
     {
+        Debug.Log("SetSpell ......\n");
         this.spell = spell;
+        Debug.Log("SetSpell ......------\n");
+        if(spell == null){
+            Debug.Log("\n00000 SetSpell *********** Spell Null =============\n");
+        } else {
+            Debug.Log("00000 SetSpell ::::::::::::: Spell NOT NULL ");
+        }        
         GameManager.Instance.spellIconManager.PlaceSprite(spell.GetIcon(), icon.GetComponent<Image>());
     }
 
     // Update is called once per frame
     void Update()
-    {
+    {          
         if (spell == null) return;
         if (Time.time > last_text_update + UPDATE_DELAY)
         {

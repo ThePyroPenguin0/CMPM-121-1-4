@@ -26,10 +26,15 @@ public class PlayerController : MonoBehaviour
     public int speed;
 
     public Unit unit;
-    private Dictionary<string, Spell> baseSpells = new Dictionary<string, Spell>();
-    private Dictionary<string, ModifierSpell> modifierSpells = new Dictionary<string, ModifierSpell>();
+
+    public Dictionary<string, JObject> spells = new Dictionary<string, JObject>();
+
     TMP_Text numEnemiesKilled;
-    private List<string> spells = new List<string>();
+
+    public Dictionary<string, JObject> manaObjects = new Dictionary<string, JObject>();
+    public Dictionary<string, JObject> enhancedObjects = new Dictionary<string, JObject>();
+    public JObject spellAttributes;
+    public JObject enhancedAttributes;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -44,7 +49,10 @@ public class PlayerController : MonoBehaviour
 
         foreach (var spell in jo3)
         {
-            if (spell["damage_multiplier"] != null || spell["mana_multiplier"] != null || spell["speed_multiplier"] != null || spell["cooldown_multiplier"] != null || spell["projectile_trajectory"] != null || spell["mana_adder"] != null)
+            spells.Add(spell.Key, (JObject)spell.Value);
+            Debug.Log("The spell loaded: " + spell.Key + ".");
+
+            if (spell.Value["damage"] != null)
             {
                 ModifierSpell modSpell = spell.ToObject<ModifierSpell>();
                 modifierSpells[modSpell.name] = modSpell;
@@ -54,6 +62,18 @@ public class PlayerController : MonoBehaviour
                 Spell sp = spell.ToObject<Spell>();
                 baseSpells[sp.name] = sp;
             }
+
+            if (manaObjects == null) {
+                // only needs to do this once to create mana objects and enhanced objects out of the json configuration
+                for(int i = 0; i < spells.Count; i++){
+                    //Debug.Log("How many spells: " + spells.Count + " SpellEntry: " + spells.ElementAt(i).Value);
+                    if(spells.ElementAt(i).Value.ContainsKey("mana_cost")){
+                        manaObjects.Add(spells.ElementAt(i).Key, spells.ElementAt(i).Value);
+                    } else {
+                        enhancedObjects.Add(spells.ElementAt(i).Key, spells.ElementAt(i).Value);
+                    }
+                }
+            }            
         }
 
         hp = new Hittable(RPN.EvaluateRPN("95 wave 5 * +", new Dictionary<string, int>() { ["wave"] = theSpawner.currentWave }), Hittable.Team.PLAYER, gameObject);
@@ -63,10 +83,19 @@ public class PlayerController : MonoBehaviour
     }
 
     public void StartLevel(Dictionary<string, JObject> spells)
-    {
-        int randomEntry = UnityEngine.Random.Range(0, spells.Count);
-        JObject spellAttributes = spells.ElementAt(randomEntry).Value;
-        spellcaster = new SpellCaster(RPN.EvaluateRPN("90 wave 10 * +", new Dictionary<string, int>() { ["wave"] = theSpawner.currentWave }), RPN.EvaluateRPN("10 wave +", new Dictionary<string, int>() { ["wave"] = theSpawner.currentWave }), Hittable.Team.PLAYER);
+    {   
+        // To discuss using a fix mana json configuration for easy, medium or endless level (instead of randomely selected here)
+        int randomEntry = UnityEngine.Random.Range(0, manaObjects.Count);
+        Debug.Log("How many manaobjects: " + manaObjects.Count + " RandomEntry: " + randomEntry);
+        JObject spellAttributes = manaObjects.ElementAt(randomEntry).Value;
+        //if (spellAttributes["mana_cost"].Value<string>())
+        //int manaCost = int.Parse(spellAttributes["mana_cost"].Value<string>());
+        int manaCost = RPN.EvaluateRPN(spellAttributes["mana_cost"].Value<string>(), new Dictionary<string, int> { ["wave"] = theSpawner.currentWave , [ "power" ] = 100});
+
+        Debug.Log("ManaCost ========= " + manaCost + "\nThe Spells ========= " + spellAttributes + "\nThe Spell Value ====== " + spellAttributes["mana_cost"].Value<string>());
+        spellcaster = new SpellCaster(manaCost, (manaCost/15), Hittable.Team.PLAYER);
+        // spellcaster = new SpellCaster(125, 8, Hittable.Team.PLAYER);
+
         StartCoroutine(spellcaster.ManaRegeneration());
         // SpellBuilder.Build(spellcaster);
         
@@ -135,5 +164,32 @@ public class PlayerController : MonoBehaviour
         }
 
         GameManager.Instance.ClearAllEnemies();
+    }
+
+    public void DecideRandSpell(){
+        // Decide which spell and which enhance to be randomly used
+        // Outcome: set the randomly used spell attributes to spellAttributes
+        //          set the randomly used enhance attributes to enhancedAttributes
+        // They will be used in RewardScreenManager.cs before showing the reward screen
+        // which shows the randomly used spell and enhance.
+        int randomSpell = UnityEngine.Random.Range(0, manaObjects.Count);
+        int randomEnhance = UnityEngine.Random.Range(0, enhancedObjects.Count);
+        Debug.Log("How many randomSpells: " + manaObjects.Count + " randomSpell: " + randomSpell);
+        Debug.Log("How many randomEnhances: " + enhancedObjects.Count + " randomEnhance: " + randomEnhance);
+
+        spellAttributes = manaObjects.ElementAt(randomSpell).Value;
+        enhancedAttributes = enhancedObjects.ElementAt(randomEnhance).Value;
+    }
+
+    public void SetRandomSpell(int manaCost) {
+        if (spellcaster != null && spellcaster.spell != null) {
+            // remove the existing one to have a new one
+            spellcaster.spell = null;
+            spellcaster = null;
+        }
+
+        spellcaster = new SpellCaster(manaCost, (manaCost/15), Hittable.Team.PLAYER);
+        manaui.SetSpellCaster(spellcaster);
+        spellui.SetSpell(spellcaster.spell);     
     }
 }

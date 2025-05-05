@@ -7,14 +7,8 @@ public class Spell
     public float last_cast;
     public SpellCaster owner;
     public Hittable.Team team;
-    private string name;
-    private string description;
-    private int icon;
-    private int damage; 
-    private JObject damageAmount;
-    private int mana_cost;
-    private int cooldown;
-    private Dictionary<string, string> projectile;
+    private JObject damageObject;
+    private JObject secondary_damage_object;
 
     // New properties for asgn2
     public string name;
@@ -23,6 +17,7 @@ public class Spell
     private int N = 1; // Count of projectiles
     private float spray = 0f;
     private Damage damage;
+    private Damage secondary_damage;
     private int mana_cost;
     private float cooldown;
     public Projectile projectile;
@@ -30,51 +25,9 @@ public class Spell
     private float? delay;
     private float? angle;
 
-    public class Projectile
-    {
-        public string trajectory = "none defined";
-        public float speed = 0f;
-        public float lifetime = 0f;
-        public int sprite = 0;
-    }
-    public class ModifierSpell
-    {
-        public string name = "No spell provided."; 
-        public string description = "No description provided.";
-        private float damage_multiplier = 1;
-        private float mana_multiplier = 1;
-        private float speed_multiplier = 1;
-        private float cooldown_multiplier = 1;
-        private string projectile_trajectory = null;
-        private int mana_adder = 0;
-
-        public void MultDMG(Spell spell)
-        {
-            spell.damage.amount = (int)(spell.damage.amount * damage_multiplier);
-        }
-
-        public void MultMana(Spell spell)
-        {
-            spell.mana_cost = (int)(spell.mana_cost * mana_multiplier);
-        }
-        public void MultSpeed(Spell spell)
-        {
-            spell.projectile.speed = (int)(spell.projectile.speed * speed_multiplier);
-        }
-        public void MultCooldown(Spell spell)
-        {
-            spell.cooldown = (int)(spell.cooldown * cooldown_multiplier);
-        }
-        public void AddMana(Spell spell)
-        {
-            spell.mana_cost += mana_adder;
-        }
-        public void setProjectileTrajectory(Spell spell)
-        {
-            spell.projectile.trajectory = projectile_trajectory;
-        }
-    }
-
+    public List<ValueMod> DamageModifiers = new List<ValueMod>();
+    public List<ValueMod> ManaCostModifiers = new List<ValueMod>();
+    public List<ValueMod> CooldownModifiers = new List<ValueMod>();
 
     public Spell(SpellCaster owner)
     {
@@ -96,7 +49,11 @@ public class Spell
         return damage.amount;
     }
 
-    public int GetCooldown()
+    public int GetSecondaryDamage(){
+        return secondary_damage.amount;
+    }
+
+    public float GetCooldown()
     {
         return cooldown;
     }
@@ -104,6 +61,22 @@ public class Spell
     public virtual int GetIcon()
     {
         return icon;
+    }
+
+    public int GetN(){
+        return N; 
+    }
+
+    public string GetDescription(){
+        return description;
+    }
+
+    public Projectile GetProjectile(){
+        return projectile;
+    }
+
+    public Projectile GetSecondaryProjectile(){
+        return secondary_projectile;
     }
 
     public void SetName(string name)
@@ -118,10 +91,14 @@ public class Spell
 
     public void SetDamage(JObject damage)
     {
-        this.damage = damage;
+        this.damageObject = damage;
     }
 
-    public void SetCooldown(Cooldown)
+    public void SetSecondaryDamage(JObject secondary_damage){
+        this.secondary_damage_object = secondary_damage;
+    }
+
+    public void SetCooldown(float cooldown)
     {
         this.cooldown = cooldown;
     }
@@ -129,6 +106,22 @@ public class Spell
     public void SetIcon(int icon)
     {
         this.icon = icon; 
+    }
+
+    public void SetN(int N){
+        this.N = N;
+    }
+
+    public void SetDescription(string description){
+        this.description = description;
+    }
+
+    public void SetProjectile(Projectile projectile){
+        this.projectile = projectile;
+    }
+
+    public void SetSecondProjectile(Projectile secondary_projectile){
+        this.secondary_projectile = secondary_projectile;
     }
 
     public bool IsReady()
@@ -157,11 +150,45 @@ public class Spell
     }
 
     public virtual void SetAttributes(JObject attributes){
-        SetName(attributes.Value<string>("name"));
-        SetManaCost(attributes.Value<int>("mana_cost"));
-        SetDamage(attributes.Value<JObject>("damage"));
-        SetCooldown(attributes.Value<int>("cooldown"));
-        SetIcon(attributes.Value<int>("icon"));
+        if(attributes.ContainsKey("name")){
+            SetName(attributes.Value<string>("name"));
+        }
+        
+        if(attributes.ContainsKey("mana_cost")){
+            SetManaCost(attributes.Value<int>("mana_cost"));
+        }
+
+        if(attributes.ContainsKey("damage")){
+            SetDamage(attributes.Value<JObject>("damage"));
+        }
+
+        if(attributes.ContainsKey("secondary_damage")){
+            SetDamage(attributes.Value<JObject>("secondary_damage"));
+        }
+        
+        if(attributes.ContainsKey("cooldown")){
+            SetCooldown(attributes.Value<int>("cooldown"));
+        }
+        
+        if(attributes.ContainsKey("icon")){
+            SetIcon(attributes.Value<int>("icon"));
+        }
+
+        if(attributes.ContainsKey("N")){
+            SetIcon(attributes.Value<int>("N"));
+        }
+        
+        if(attributes.ContainsKey("description")){
+            SetIcon(attributes.Value<int>("description"));
+        }
+
+        if(attributes.ContainsKey("projectile")){
+            SetProjectile(attributes.Value<Projectile>("projectile"));
+        }
+        
+        if(attributes.ContainsKey("secondary_projectile")){
+            SetSecondProjectile(attributes.Value<Projectile>("secondary_projectile")); 
+        }
     }
 
 }

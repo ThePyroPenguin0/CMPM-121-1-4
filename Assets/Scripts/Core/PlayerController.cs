@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using static Spell;
 
 public class PlayerController : MonoBehaviour
 {
@@ -44,8 +45,8 @@ public class PlayerController : MonoBehaviour
 
         // read the spells.json file here similar to above code 
         var spellstext = Resources.Load<TextAsset>("spells");
+        JToken jo3 = JObject.Parse(spellstext.text);
 
-        JObject jo3 = JObject.Parse(spellstext.text);
         foreach (var spell in jo3)
         {
             spells.Add(spell.Key, (JObject)spell.Value);
@@ -53,13 +54,13 @@ public class PlayerController : MonoBehaviour
 
             if (spell.Value["damage"] != null)
             {
-                var damageJson = spell.Value["damage"];
-                string amountExpression = damageJson["amount"].ToString();
-                string typeString = damageJson["type"].ToString();
-                int amount = RPN.EvaluateRPN(amountExpression, new Dictionary<string, int> { ["wave"] = theSpawner.currentWave , [ "power" ] = 100});
-                Damage damage = new Damage(amount, Damage.TypeFromString(typeString));
-
-                Debug.Log($"Damage Amount: {damage.amount}, Damage Type: {damage.type}");
+                ModifierSpell modSpell = spell.ToObject<ModifierSpell>();
+                modifierSpells[modSpell.name] = modSpell;
+            }
+            else
+            {
+                Spell sp = spell.ToObject<Spell>();
+                baseSpells[sp.name] = sp;
             }
 
             if (manaObjects == null) {
@@ -75,9 +76,10 @@ public class PlayerController : MonoBehaviour
             }            
         }
 
-        TMP_Text [] allText = gameOverUI.GetComponentsInChildren<TMP_Text>(true);
+        hp = new Hittable(RPN.EvaluateRPN("95 wave 5 * +", new Dictionary<string, int>() { ["wave"] = theSpawner.currentWave }), Hittable.Team.PLAYER, gameObject);
+        TMP_Text[] allText = gameOverUI.GetComponentsInChildren<TMP_Text>(true);
         numEnemiesKilled = Array.Find(allText, x => x.gameObject.name == "GameOverText");
-        
+
     }
 
     public void StartLevel(Dictionary<string, JObject> spells)
@@ -97,7 +99,7 @@ public class PlayerController : MonoBehaviour
         StartCoroutine(spellcaster.ManaRegeneration());
         // SpellBuilder.Build(spellcaster);
         
-        hp = new Hittable(RPN.EvaluateRPN("95 wave 5 * +", new Dictionary<string, int>() { ["wave"] = theSpawner.currentWave }), Hittable.Team.PLAYER, gameObject);
+        hp.SetMaxHP(RPN.EvaluateRPN("95 wave 5 * +", new Dictionary<string, int>() { ["wave"] = theSpawner.currentWave }));
         hp.OnDeath += Die;
         hp.team = Hittable.Team.PLAYER;
 
@@ -110,7 +112,7 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     void OnAttack(InputValue value)
@@ -125,38 +127,43 @@ public class PlayerController : MonoBehaviour
     void OnMove(InputValue value)
     {
         if (GameManager.Instance.state == GameManager.GameState.PREGAME || GameManager.Instance.state == GameManager.GameState.GAMEOVER) return;
-        unit.movement = value.Get<Vector2>()*speed;
+        unit.movement = value.Get<Vector2>() * speed;
     }
 
     void Die()
     {
         Debug.Log("You Lost: " + GameManager.Instance.state);
-        if(GameManager.Instance.state == GameManager.GameState.INWAVE){
+        if (GameManager.Instance.state == GameManager.GameState.INWAVE)
+        {
             GameManager.Instance.ClearAllEnemies();
             StartCoroutine(ShowGameOverScreen());
         }
         GameManager.Instance.state = GameManager.GameState.PREGAME;
     }
 
-    IEnumerator ShowGameOverScreen(){
-        if(numEnemiesKilled != null){
+    IEnumerator ShowGameOverScreen()
+    {
+        if (numEnemiesKilled != null)
+        {
             numEnemiesKilled.text = "Level Finished!!! You have killed " + GameManager.Instance.enemiesKilled + " enemies.";
         }
         gameOverUI.SetActive(true);
-        yield return new WaitForSeconds(15f); 
+        yield return new WaitForSeconds(15f);
         //gameOverUI.SetActive(false);
     }
 
-    public void ReturnToStartMenu(){
+    public void ReturnToStartMenu()
+    {
         GameManager.Instance.state = GameManager.GameState.PREGAME;
 
         gameOverUI.SetActive(false);
 
-        if(theSpawner != null){
+        if (theSpawner != null)
+        {
             theSpawner.level_selector.gameObject.SetActive(true);
-        } 
+        }
 
-        GameManager.Instance.ClearAllEnemies(); 
+        GameManager.Instance.ClearAllEnemies();
     }
 
     public void DecideRandSpell(){

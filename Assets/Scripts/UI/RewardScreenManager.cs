@@ -10,7 +10,6 @@ using System.Collections.Generic;
 public class RewardScreenManager : MonoBehaviour
 {
     public GameObject rewardUI;
-    //public GameObject spellUI; 
     public Button acceptButton; 
     TMP_Text numEnemiesKilled;
     TMP_Text randSpell; 
@@ -27,17 +26,11 @@ public class RewardScreenManager : MonoBehaviour
     {
         TMP_Text[] allText = rewardUI.GetComponentsInChildren<TMP_Text>(true);
 
-        RewardScreenManager acceptOrDecline = rewardUI.GetComponent<RewardScreenManager>();
-
-        Button theButton = rewardUI.GetComponent<Button>();
-
         playerController = FindObjectOfType<PlayerController>();
 
         numEnemiesKilled = Array.Find(allText, x => x.gameObject.name == "LevelCompletedText");
 
         randSpell = Array.Find(allText, x => x.gameObject.name == "SpellText");
-
-        theButton.onClick.AddListener(() => acceptOrDecline.SetRandSpell());
 
         if(numEnemiesKilled != null){
             Debug.Log("Found some text here = " + numEnemiesKilled.name);

@@ -8,14 +8,8 @@ public class Spell
     public float last_cast;
     public SpellCaster owner;
     public Hittable.Team team;
-    private string name;
-    private string description;
-    private int icon;
-    private int damage; 
-    private JObject damageAmount;
-    private int mana_cost;
-    private int cooldown;
-    private Dictionary<string, string> projectile;
+    private JObject damageObject;
+    private JObject secondary_damage_object;
 
     // New properties for asgn2
     public string name;
@@ -24,6 +18,7 @@ public class Spell
     private int N = 1; // Count of projectiles
     private float spray = 0f;
     private Damage damage;
+    private Damage secondary_damage;
     private int mana_cost;
     private float cooldown;
     public Projectile projectile;
@@ -34,7 +29,6 @@ public class Spell
     public List<ValueMod> DamageModifiers = new List<ValueMod>();
     public List<ValueMod> ManaCostModifiers = new List<ValueMod>();
     public List<ValueMod> CooldownModifiers = new List<ValueMod>();
-    
 
     public Spell(SpellCaster owner)
     {
@@ -56,7 +50,11 @@ public class Spell
         return damage.amount;
     }
 
-    public int GetCooldown()
+    public int GetSecondaryDamage(){
+        return secondary_damage.amount;
+    }
+
+    public float GetCooldown()
     {
         return cooldown;
     }
@@ -64,6 +62,22 @@ public class Spell
     public virtual int GetIcon()
     {
         return icon;
+    }
+
+    public int GetN(){
+        return N; 
+    }
+
+    public string GetDescription(){
+        return description;
+    }
+
+    public Projectile GetProjectile(){
+        return projectile;
+    }
+
+    public Projectile GetSecondaryProjectile(){
+        return secondary_projectile;
     }
 
     public void SetName(string name)
@@ -78,9 +92,14 @@ public class Spell
 
     public void SetDamage(JObject damage)
     {
-        this.damage = damage;
+        this.damageObject = damage;
     }
 
+    public void SetSecondaryDamage(JObject secondary_damage){
+        this.secondary_damage_object = secondary_damage;
+    }
+
+    public void SetCooldown(float cooldown)
     {
         this.cooldown = cooldown;
     }
@@ -88,6 +107,22 @@ public class Spell
     public void SetIcon(int icon)
     {
         this.icon = icon; 
+    }
+
+    public void SetN(int N){
+        this.N = N;
+    }
+
+    public void SetDescription(string description){
+        this.description = description;
+    }
+
+    public void SetProjectile(Projectile projectile){
+        this.projectile = projectile;
+    }
+
+    public void SetSecondProjectile(Projectile secondary_projectile){
+        this.secondary_projectile = secondary_projectile;
     }
 
     public bool IsReady()
@@ -116,11 +151,45 @@ public class Spell
     }
 
     public virtual void SetAttributes(JObject attributes){
-        SetName(attributes.Value<string>("name"));
-        SetManaCost(attributes.Value<int>("mana_cost"));
-        SetDamage(attributes.Value<JObject>("damage"));
-        SetCooldown(attributes.Value<int>("cooldown"));
-        SetIcon(attributes.Value<int>("icon"));
+        if(attributes.ContainsKey("name")){
+            SetName(attributes.Value<string>("name"));
+        }
+        
+        if(attributes.ContainsKey("mana_cost")){
+            SetManaCost(attributes.Value<int>("mana_cost"));
+        }
+
+        if(attributes.ContainsKey("damage")){
+            SetDamage(attributes.Value<JObject>("damage"));
+        }
+
+        if(attributes.ContainsKey("secondary_damage")){
+            SetDamage(attributes.Value<JObject>("secondary_damage"));
+        }
+        
+        if(attributes.ContainsKey("cooldown")){
+            SetCooldown(attributes.Value<int>("cooldown"));
+        }
+        
+        if(attributes.ContainsKey("icon")){
+            SetIcon(attributes.Value<int>("icon"));
+        }
+
+        if(attributes.ContainsKey("N")){
+            SetIcon(attributes.Value<int>("N"));
+        }
+        
+        if(attributes.ContainsKey("description")){
+            SetIcon(attributes.Value<int>("description"));
+        }
+
+        if(attributes.ContainsKey("projectile")){
+            SetProjectile(attributes.Value<Projectile>("projectile"));
+        }
+        
+        if(attributes.ContainsKey("secondary_projectile")){
+            SetSecondProjectile(attributes.Value<Projectile>("secondary_projectile")); 
+        }
     }
 
 }

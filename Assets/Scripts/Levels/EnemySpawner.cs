@@ -51,7 +51,7 @@ public class EnemySpawner : MonoBehaviour
             spells.Add(spell.Key, (JObject)spell.Value);
             Debug.Log("The spell ----- " + spell + ". ");
         }
-        
+
         var levelEntries = level_types.Values.ToList();
         CreateLevel(levelEntries[0].name, new Vector3(0, 90));
         CreateLevel(levelEntries[1].name, new Vector3(0, 0));
